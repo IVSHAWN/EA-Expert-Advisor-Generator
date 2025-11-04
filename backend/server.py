@@ -181,12 +181,12 @@ Provide complete, production-ready MQL5 code with:
 Respond ONLY with the MQL5 code, no explanations.
 """
         
-        # Use GPT-5 to generate code
+        # Use GPT-4o to generate code (stable and fast)
         chat = LlmChat(
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
             session_id=f"ea_gen_{user['id']}_{datetime.now(timezone.utc).timestamp()}",
             system_message="You are an expert MQL5 developer creating MetaTrader 5 Expert Advisors and Indicators."
-        ).with_model("openai", "gpt-5")
+        ).with_model("openai", "gpt-4o")
         
         user_message = UserMessage(text=prompt)
         code = await chat.send_message(user_message)

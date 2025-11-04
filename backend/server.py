@@ -358,6 +358,140 @@ async def get_bot_status(ea_id: str, user: dict = Depends(get_current_user)):
         last_updated=status_doc["last_updated"]
     )
 
+# License Management Endpoints
+@api_router.post("/license/assign", response_model=LicenseAssignmentResponse)
+async def assign_license(ea_id: str, data: LicenseAssignment, user: dict = Depends(get_current_user)):
+    # Verify EA belongs to user
+    ea = await db.expert_advisors.find_one({"id": ea_id, "user_id": user["id"]})
+    if not ea:
+        raise HTTPException(status_code=404, detail="EA not found")
+    
+    # Check if license key belongs to this EA
+    if ea["license_key"] != data.license_key:
+        raise HTTPException(status_code=400, detail="License key does not match this EA")
+    
+    # Check if license already assigned
+    existing = await db.license_assignments.find_one({"license_key": data.license_key})
+    if existing:
+        raise HTTPException(status_code=400, detail="License key already assigned")
+    
+    assignment_id = str(uuid.uuid4())
+    assignment_doc = {
+        "id": assignment_id,
+        "ea_id": ea_id,
+        "license_key": data.license_key,
+        "customer_name": data.customer_name,
+        "customer_email": data.customer_email,
+        "assigned_date": datetime.now(timezone.utc).isoformat(),
+        "expiration_date": data.expiration_date,
+        "purchase_amount": data.purchase_amount or 0.0,
+        "is_active": True,
+        "last_used": None,
+        "usage_count": 0
+    }
+    await db.license_assignments.insert_one(assignment_doc)
+    
+    return LicenseAssignmentResponse(**assignment_doc)
+
+@api_router.get("/license/analytics/{ea_id}", response_model=LicenseAnalytics)
+async def get_license_analytics(ea_id: str, user: dict = Depends(get_current_user)):
+    # Verify EA belongs to user
+    ea = await db.expert_advisors.find_one({"id": ea_id, "user_id": user["id"]})
+    if not ea:
+        raise HTTPException(status_code=404, detail="EA not found")
+    
+    # Get all license assignments for this EA
+    assignments = await db.license_assignments.find({"ea_id": ea_id}, {"_id": 0}).to_list(1000)
+    
+    total_licenses = len(assignments)
+    active_licenses = 0
+    expired_licenses = 0
+    total_revenue = 0.0
+    
+    now = datetime.now(timezone.utc)
+    
+    for assignment in assignments:
+        # Check if expired
+        if assignment.get("expiration_date"):
+            exp_date = datetime.fromisoformat(assignment["expiration_date"])
+            if exp_date < now:
+                assignment["is_active"] = False
+                expired_licenses += 1
+            else:
+                active_licenses += 1
+        else:
+            active_licenses += 1
+        
+        total_revenue += assignment.get("purchase_amount", 0.0)
+    
+    return LicenseAnalytics(
+        ea_id=ea_id,
+        ea_name=ea["name"],
+        total_licenses=total_licenses,
+        active_licenses=active_licenses,
+        expired_licenses=expired_licenses,
+        total_revenue=total_revenue,
+        licenses=[LicenseAssignmentResponse(**a) for a in assignments]
+    )
+
+@api_router.post("/license/validate")
+async def validate_license(data: LicenseValidation):
+    """Public endpoint for MT5 EAs to validate licenses"""
+    assignment = await db.license_assignments.find_one({"license_key": data.license_key})
+    
+    if not assignment:
+        return {"valid": False, "message": "License key not found"}
+    
+    # Check expiration
+    if assignment.get("expiration_date"):
+        exp_date = datetime.fromisoformat(assignment["expiration_date"])
+        if exp_date < datetime.now(timezone.utc):
+            return {"valid": False, "message": "License expired"}
+    
+    # Update usage stats
+    await db.license_assignments.update_one(
+        {"license_key": data.license_key},
+        {
+            "$set": {"last_used": datetime.now(timezone.utc).isoformat()},
+            "$inc": {"usage_count": 1}
+        }
+    )
+    
+    # Log usage
+    await db.license_usage_log.insert_one({
+        "license_key": data.license_key,
+        "mt5_account": data.mt5_account,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        "valid": True,
+        "customer_name": assignment["customer_name"],
+        "expiration_date": assignment.get("expiration_date")
+    }
+
+@api_router.get("/license/usage/{license_key}")
+async def get_license_usage(license_key: str, user: dict = Depends(get_current_user)):
+    """Get usage history for a license key"""
+    # Verify license belongs to user's EA
+    assignment = await db.license_assignments.find_one({"license_key": license_key})
+    if not assignment:
+        raise HTTPException(status_code=404, detail="License not found")
+    
+    ea = await db.expert_advisors.find_one({"id": assignment["ea_id"], "user_id": user["id"]})
+    if not ea:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Get usage logs
+    logs = await db.license_usage_log.find({"license_key": license_key}, {"_id": 0}).sort("timestamp", -1).limit(100).to_list(100)
+    
+    return {
+        "license_key": license_key,
+        "usage_count": assignment.get("usage_count", 0),
+        "last_used": assignment.get("last_used"),
+        "recent_usage": logs
+    }
+
 # Include router
 app.include_router(api_router)
 

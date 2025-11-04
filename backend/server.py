@@ -95,6 +95,41 @@ class BotStatusResponse(BaseModel):
     is_active: bool
     last_updated: str
 
+class LicenseAssignment(BaseModel):
+    license_key: str
+    customer_name: str
+    customer_email: EmailStr
+    expiration_date: Optional[str] = None
+    purchase_amount: Optional[float] = None
+
+class LicenseAssignmentResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    ea_id: str
+    license_key: str
+    customer_name: str
+    customer_email: str
+    assigned_date: str
+    expiration_date: Optional[str] = None
+    purchase_amount: Optional[float] = None
+    is_active: bool
+    last_used: Optional[str] = None
+    usage_count: int
+
+class LicenseValidation(BaseModel):
+    license_key: str
+    mt5_account: Optional[str] = None
+
+class LicenseAnalytics(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    ea_id: str
+    ea_name: str
+    total_licenses: int
+    active_licenses: int
+    expired_licenses: int
+    total_revenue: float
+    licenses: List[LicenseAssignmentResponse]
+
 # Auth helpers
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')

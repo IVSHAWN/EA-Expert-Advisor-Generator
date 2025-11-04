@@ -11,7 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
 import { toast } from "sonner";
-import { LogOut, Plus, Code2, Key, Activity, Download, Power, TrendingUp } from "lucide-react";
+import { LogOut, Plus, Code2, Key, Activity, Download, Power, TrendingUp, Users } from "lucide-react";
+import LicenseManager from "./LicenseManager";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;

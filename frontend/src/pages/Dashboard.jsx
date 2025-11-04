@@ -191,6 +191,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
             <TabsList className="bg-white/10 backdrop-blur-md border border-white/20">
               <TabsTrigger value="generate" data-testid="generate-tab">Generate EA</TabsTrigger>
               <TabsTrigger value="my-eas" data-testid="my-eas-tab">My EAs</TabsTrigger>
+              <TabsTrigger value="licenses" data-testid="licenses-tab">License Manager</TabsTrigger>
               <TabsTrigger value="mt5" data-testid="mt5-tab">MT5 Accounts</TabsTrigger>
             </TabsList>
 

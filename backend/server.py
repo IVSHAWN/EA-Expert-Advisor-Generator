@@ -201,35 +201,59 @@ async def generate_ea(data: GenerateEARequest, user: dict = Depends(get_current_
         
         # Create prompt for EA generation
         prompt = f"""
-You are an expert MQL5 developer. Generate a complete, error-free MetaTrader 5 {data.type.upper()} that will compile successfully in MetaEditor.
+You are an expert MQL5 developer for MetaTrader 5. Generate a complete, error-free {data.type.upper()} that will compile successfully in MetaEditor Build 3770+.
 
 Requirements:
 Description: {data.description}
 {f'Strategy Details: {data.strategy_details}' if data.strategy_details else ''}
 
-CRITICAL REQUIREMENTS:
-1. Code MUST compile without errors in MQL5
-2. Use correct MQL5 syntax (OnInit, OnDeinit, OnTick for EAs)
-3. Include proper #property directives
-4. Use CTrade class for trading operations (#include <Trade\\Trade.mqh>)
-5. Implement proper error handling with GetLastError()
-6. Add input parameters for customization
-7. Include stop loss and take profit management
-8. Add comments explaining the logic
-9. Use proper variable types (double, int, string, datetime)
-10. Normalize prices with NormalizeDouble()
+CRITICAL MQL5 SYNTAX RULES:
+1. DO NOT use #property strict (that's MT4 only)
+2. Use #property copyright, #property link, #property version
+3. Include <Trade\\Trade.mqh> for CTrade class
+4. Use OnInit(), OnDeinit(), OnTick() for Expert Advisors
+5. Use SymbolInfoDouble() for prices, not MarketInfo()
+6. Use _Symbol for current symbol, not Symbol()
+7. Use _Digits for digits, not Digits
+8. Use _Point for point size, not Point
+9. Properly declare CTrade object globally: CTrade trade;
+10. Use NormalizeDouble() for price normalization
+11. Handle errors with GetLastError() and proper error codes
+12. All input parameters must use 'input' keyword
+13. Use proper MQL5 data types: double, int, long, string, datetime, bool
+14. Comment all major logic blocks
 
-Structure for Expert Advisor:
-- #property directives (copyright, link, version)
-- #include statements
-- input parameters
-- Global variables
-- OnInit() function
-- OnDeinit() function  
-- OnTick() function
-- Helper functions
+REQUIRED STRUCTURE:
+//+------------------------------------------------------------------+
+//|                                                    EA_Name.mq5   |
+//|                        Copyright 2025, Your Name                 |
+//+------------------------------------------------------------------+
+#property copyright "2025"
+#property version   "1.00"
 
-Return ONLY valid MQL5 code without any markdown formatting, explanations, or code blocks. Start directly with //+ or #property.
+#include <Trade\\Trade.mqh>
+
+input double LotSize = 0.1;
+input int StopLoss = 50;
+input int TakeProfit = 100;
+
+CTrade trade;
+
+int OnInit()
+{{
+   return(INIT_SUCCEEDED);
+}}
+
+void OnDeinit(const int reason)
+{{
+}}
+
+void OnTick()
+{{
+   // Your trading logic here
+}}
+
+Return ONLY compilable MQL5 code without markdown, explanations, or ```code blocks```. Start directly with //.
 """
         
         # Use GPT-4o to generate code (stable and fast)

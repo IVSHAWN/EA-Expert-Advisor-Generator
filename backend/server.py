@@ -201,30 +201,59 @@ async def generate_ea(data: GenerateEARequest, user: dict = Depends(get_current_
         
         # Create prompt for EA generation
         prompt = f"""
-Generate a MetaTrader 5 {data.type.upper()} with the following requirements:
+You are an expert MQL5 developer. Generate a complete, error-free MetaTrader 5 {data.type.upper()} that will compile successfully in MetaEditor.
 
+Requirements:
 Description: {data.description}
 {f'Strategy Details: {data.strategy_details}' if data.strategy_details else ''}
 
-Provide complete, production-ready MQL5 code with:
-- Proper error handling
-- Input parameters
-- Trading logic
-- Risk management
-- Comments explaining the code
+CRITICAL REQUIREMENTS:
+1. Code MUST compile without errors in MQL5
+2. Use correct MQL5 syntax (OnInit, OnDeinit, OnTick for EAs)
+3. Include proper #property directives
+4. Use CTrade class for trading operations (#include <Trade\\Trade.mqh>)
+5. Implement proper error handling with GetLastError()
+6. Add input parameters for customization
+7. Include stop loss and take profit management
+8. Add comments explaining the logic
+9. Use proper variable types (double, int, string, datetime)
+10. Normalize prices with NormalizeDouble()
 
-Respond ONLY with the MQL5 code, no explanations.
+Structure for Expert Advisor:
+- #property directives (copyright, link, version)
+- #include statements
+- input parameters
+- Global variables
+- OnInit() function
+- OnDeinit() function  
+- OnTick() function
+- Helper functions
+
+Return ONLY valid MQL5 code without any markdown formatting, explanations, or code blocks. Start directly with //+ or #property.
 """
         
         # Use GPT-4o to generate code (stable and fast)
         chat = LlmChat(
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
             session_id=f"ea_gen_{user['id']}_{datetime.now(timezone.utc).timestamp()}",
-            system_message="You are an expert MQL5 developer creating MetaTrader 5 Expert Advisors and Indicators."
+            system_message="You are an expert MQL5 developer. Generate only valid, compilable MQL5 code without markdown formatting."
         ).with_model("openai", "gpt-4o")
         
         user_message = UserMessage(text=prompt)
-        code = await chat.send_message(user_message)
+        raw_code = await chat.send_message(user_message)
+        
+        # Clean the code - remove markdown formatting if present
+        code = raw_code.strip()
+        if code.startswith("```mql5") or code.startswith("```"):
+            # Remove markdown code blocks
+            lines = code.split('\n')
+            if lines[0].startswith("```"):
+                lines = lines[1:]  # Remove opening ```
+            if lines[-1].strip() == "```":
+                lines = lines[:-1]  # Remove closing ```
+            code = '\n'.join(lines)
+        
+        code = code.strip()
         
         # Generate license key
         license_key = f"EA-{secrets.token_hex(16).upper()}"

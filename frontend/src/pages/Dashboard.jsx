@@ -158,19 +158,13 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   return (
     <div className="min-h-screen relative" data-testid="dashboard-page">
-      {/* Background with Bull Image */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900"></div>
-        <div 
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `url('https://images.stockcake.com/public/c/6/1/c6169bb6-60f7-4572-b10a-6777972c9e08_large/futuristic-trading-dashboard-stockcake.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+      {/* Smooth Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-purple-950/80 to-slate-900">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500 rounded-full filter blur-[128px] animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500 rounded-full filter blur-[128px] animate-pulse" style={{ animationDelay: '1s' }}></div>
+        </div>
       </div>
 
       {/* Content */}

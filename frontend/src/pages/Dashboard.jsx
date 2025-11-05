@@ -118,12 +118,43 @@ const Dashboard = ({ setIsAuthenticated }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(`${API}/mt5/connect`, mt5Form, getAuthHeader());
+      const payload = {
+        account_number: mt5Form.account_number,
+        server: mt5Form.server,
+        password: mt5Form.password,
+        balance: mt5Form.balance ? parseFloat(mt5Form.balance) : null,
+        equity: mt5Form.equity ? parseFloat(mt5Form.equity) : null,
+        margin: mt5Form.margin ? parseFloat(mt5Form.margin) : null,
+        free_margin: mt5Form.free_margin ? parseFloat(mt5Form.free_margin) : null
+      };
+      await axios.post(`${API}/mt5/connect`, payload, getAuthHeader());
       toast.success("MT5 account connected successfully!");
-      setMt5Form({ account_number: "", server: "", password: "" });
+      setMt5Form({ account_number: "", server: "", password: "", balance: "", equity: "", margin: "", free_margin: "" });
       fetchMT5Accounts();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to connect MT5 account");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateBalance = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = {
+        balance: parseFloat(balanceUpdateForm.balance),
+        equity: balanceUpdateForm.equity ? parseFloat(balanceUpdateForm.equity) : null,
+        margin: balanceUpdateForm.margin ? parseFloat(balanceUpdateForm.margin) : null,
+        free_margin: balanceUpdateForm.free_margin ? parseFloat(balanceUpdateForm.free_margin) : null
+      };
+      await axios.put(`${API}/mt5/balance/${balanceUpdateForm.account_id}`, payload, getAuthHeader());
+      toast.success("Balance updated successfully!");
+      setShowBalanceDialog(false);
+      setBalanceUpdateForm({ account_id: "", balance: "", equity: "", margin: "", free_margin: "" });
+      fetchMT5Accounts();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to update balance");
     } finally {
       setLoading(false);
     }

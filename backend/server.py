@@ -331,6 +331,24 @@ async def get_ea(ea_id: str, user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="EA not found")
     return ea
 
+@api_router.delete("/ea/{ea_id}")
+async def delete_ea(ea_id: str, user: dict = Depends(get_current_user)):
+    # Verify EA belongs to user
+    ea = await db.expert_advisors.find_one({"id": ea_id, "user_id": user["id"]})
+    if not ea:
+        raise HTTPException(status_code=404, detail="EA not found")
+    
+    # Delete the EA
+    await db.expert_advisors.delete_one({"id": ea_id, "user_id": user["id"]})
+    
+    # Delete associated bot status
+    await db.bot_status.delete_one({"ea_id": ea_id})
+    
+    # Delete associated license assignments
+    await db.license_assignments.delete_many({"ea_id": ea_id})
+    
+    return {"message": "EA deleted successfully", "ea_id": ea_id}
+
 @api_router.post("/mt5/connect", response_model=MT5AccountResponse)
 async def connect_mt5(data: MT5Account, user: dict = Depends(get_current_user)):
     # Check if account already exists

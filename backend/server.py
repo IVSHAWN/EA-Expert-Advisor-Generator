@@ -239,7 +239,7 @@ CRITICAL MQL5 SYNTAX RULES (MUST FOLLOW):
 14. All input parameters MUST use 'input' keyword
 15. ALWAYS use NormalizeDouble() for price calculations
 
-REQUIRED STRUCTURE:
+REQUIRED STRUCTURE (EXACT FORMAT):
 //+------------------------------------------------------------------+
 //|                                                    EA_Name.mq5   |
 //|                        Copyright 2025, Your Name                 |
@@ -266,8 +266,13 @@ void OnDeinit(const int reason)
 
 void OnTick()
 {{
-   // Your trading logic here
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);  // Use _Symbol NOT Symbol
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);  // Use _Symbol NOT Symbol
+   
+   // Your trading logic here using _Symbol, _Digits, _Point
 }}
+
+CRITICAL: Use _Symbol, _Digits, _Point (with underscores) everywhere. NEVER use Symbol, Digits, Point without underscores.
 
 Return ONLY compilable MQL5 code without markdown, explanations, or ```code blocks```. Start directly with //.
 """

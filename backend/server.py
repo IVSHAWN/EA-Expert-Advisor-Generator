@@ -378,6 +378,10 @@ async def connect_mt5(data: MT5Account, user: dict = Depends(get_current_user)):
         "server": data.server,
         "password": data.password,  # In production, encrypt this
         "connected": True,
+        "balance": data.balance,
+        "equity": data.equity,
+        "margin": data.margin,
+        "free_margin": data.free_margin,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.mt5_accounts.insert_one(account_doc)
@@ -388,6 +392,10 @@ async def connect_mt5(data: MT5Account, user: dict = Depends(get_current_user)):
         account_number=data.account_number,
         server=data.server,
         connected=True,
+        balance=data.balance,
+        equity=data.equity,
+        margin=data.margin,
+        free_margin=data.free_margin,
         created_at=account_doc["created_at"]
     )
 

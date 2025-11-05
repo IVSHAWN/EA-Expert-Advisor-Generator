@@ -106,7 +106,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
     try {
       const response = await axios.post(`${API}/ea/generate`, generateForm, getAuthHeader());
       toast.success(`${generateForm.type.toUpperCase()} generated successfully!`);
-      setGenerateForm({ type: "ea", description: "", strategy_details: "" });
+      setGenerateForm({ type: "ea", name: "", description: "", strategy_details: "" });
       fetchEAs();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to generate EA");

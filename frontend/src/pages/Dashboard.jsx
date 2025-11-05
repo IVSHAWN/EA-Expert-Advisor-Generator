@@ -29,6 +29,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   const [generateForm, setGenerateForm] = useState({
     type: "ea",
+    name: "",
     description: "",
     strategy_details: ""
   });

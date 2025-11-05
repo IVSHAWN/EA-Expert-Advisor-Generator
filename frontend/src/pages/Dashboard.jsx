@@ -36,8 +36,22 @@ const Dashboard = ({ setIsAuthenticated }) => {
   const [mt5Form, setMt5Form] = useState({
     account_number: "",
     server: "",
-    password: ""
+    password: "",
+    balance: "",
+    equity: "",
+    margin: "",
+    free_margin: ""
   });
+
+  const [balanceUpdateForm, setBalanceUpdateForm] = useState({
+    account_id: "",
+    balance: "",
+    equity: "",
+    margin: "",
+    free_margin: ""
+  });
+
+  const [showBalanceDialog, setShowBalanceDialog] = useState(false);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");

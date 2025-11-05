@@ -136,6 +136,16 @@ const Dashboard = ({ setIsAuthenticated }) => {
     navigate("/");
   };
 
+  const handleDeleteEA = async (eaId, eaName) => {
+    try {
+      await axios.delete(`${API}/ea/${eaId}`, getAuthHeader());
+      toast.success(`${eaName} deleted successfully`);
+      fetchEAs();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to delete EA");
+    }
+  };
+
   const downloadCode = (ea) => {
     const element = document.createElement("a");
     const file = new Blob([ea.code], { type: 'text/plain' });

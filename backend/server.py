@@ -404,6 +404,27 @@ async def get_mt5_accounts(user: dict = Depends(get_current_user)):
     accounts = await db.mt5_accounts.find({"user_id": user["id"]}, {"_id": 0, "password": 0}).to_list(1000)
     return accounts
 
+@api_router.put("/mt5/balance/{account_id}", response_model=MT5AccountResponse)
+async def update_mt5_balance(account_id: str, data: MT5BalanceUpdate, user: dict = Depends(get_current_user)):
+    # Verify account belongs to user
+    account = await db.mt5_accounts.find_one({"id": account_id, "user_id": user["id"]})
+    if not account:
+        raise HTTPException(status_code=404, detail="MT5 account not found")
+    
+    # Update balance
+    await db.mt5_accounts.update_one(
+        {"id": account_id},
+        {"$set": {
+            "balance": data.balance,
+            "equity": data.equity,
+            "margin": data.margin,
+            "free_margin": data.free_margin
+        }}
+    )
+    
+    updated_account = await db.mt5_accounts.find_one({"id": account_id}, {"_id": 0, "password": 0})
+    return MT5AccountResponse(**updated_account)
+
 @api_router.post("/bot/toggle", response_model=BotStatusResponse)
 async def toggle_bot(data: BotStatus, user: dict = Depends(get_current_user)):
     # Verify EA belongs to user

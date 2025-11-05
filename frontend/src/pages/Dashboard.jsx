@@ -547,15 +547,105 @@ const Dashboard = ({ setIsAuthenticated }) => {
                             className="bg-white/5 rounded-lg p-4 border border-white/10"
                             data-testid={`mt5-account-${account.id}`}
                           >
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="text-white font-semibold">Account: {account.account_number}</p>
-                                <p className="text-gray-400 text-sm">Server: {account.server}</p>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="text-white font-semibold">Account: {account.account_number}</p>
+                                  <p className="text-gray-400 text-sm">Server: {account.server}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                  <span className="text-green-400 text-sm">Connected</span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                <span className="text-green-400 text-sm">Connected</span>
-                              </div>
+                              
+                              {account.balance && (
+                                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
+                                  <div>
+                                    <p className="text-gray-400 text-xs">Balance</p>
+                                    <p className="text-green-400 font-semibold" data-testid={`balance-${account.id}`}>
+                                      ${account.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                    </p>
+                                  </div>
+                                  {account.equity && (
+                                    <div>
+                                      <p className="text-gray-400 text-xs">Equity</p>
+                                      <p className="text-blue-400 font-semibold">
+                                        ${account.equity.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              
+                              <Dialog open={showBalanceDialog && balanceUpdateForm.account_id === account.id} onOpenChange={(open) => {
+                                setShowBalanceDialog(open);
+                                if (!open) setBalanceUpdateForm({ account_id: "", balance: "", equity: "", margin: "", free_margin: "" });
+                              }}>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    data-testid={`update-balance-btn-${account.id}`}
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full border-white/20 text-white hover:bg-white/10"
+                                    onClick={() => {
+                                      setBalanceUpdateForm({
+                                        account_id: account.id,
+                                        balance: account.balance?.toString() || "",
+                                        equity: account.equity?.toString() || "",
+                                        margin: account.margin?.toString() || "",
+                                        free_margin: account.free_margin?.toString() || ""
+                                      });
+                                      setShowBalanceDialog(true);
+                                    }}
+                                  >
+                                    Update Balance
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="bg-slate-900 border-white/20">
+                                  <DialogHeader>
+                                    <DialogTitle className="text-white">Update Account Balance</DialogTitle>
+                                    <DialogDescription className="text-gray-400">
+                                      Update balance details for account {account.account_number}
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <form onSubmit={handleUpdateBalance} className="space-y-4">
+                                    <div>
+                                      <Label className="text-gray-200">Balance *</Label>
+                                      <Input
+                                        data-testid="update-balance-input"
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="10000.00"
+                                        value={balanceUpdateForm.balance}
+                                        onChange={(e) => setBalanceUpdateForm({ ...balanceUpdateForm, balance: e.target.value })}
+                                        className="bg-white/5 border-white/20 text-white placeholder:text-gray-400"
+                                        required
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label className="text-gray-200">Equity (Optional)</Label>
+                                      <Input
+                                        data-testid="update-equity-input"
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="10000.00"
+                                        value={balanceUpdateForm.equity}
+                                        onChange={(e) => setBalanceUpdateForm({ ...balanceUpdateForm, equity: e.target.value })}
+                                        className="bg-white/5 border-white/20 text-white placeholder:text-gray-400"
+                                      />
+                                    </div>
+                                    <Button
+                                      data-testid="submit-balance-update-btn"
+                                      type="submit"
+                                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                                      disabled={loading}
+                                    >
+                                      {loading ? "Updating..." : "Update Balance"}
+                                    </Button>
+                                  </form>
+                                </DialogContent>
+                              </Dialog>
                             </div>
                           </div>
                         ))}

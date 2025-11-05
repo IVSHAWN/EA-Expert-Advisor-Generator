@@ -222,21 +222,22 @@ Requirements:
 Description: {data.description}
 {f'Strategy Details: {data.strategy_details}' if data.strategy_details else ''}
 
-CRITICAL MQL5 SYNTAX RULES:
-1. DO NOT use #property strict (that's MT4 only)
-2. Use #property copyright, #property link, #property version
-3. Include <Trade\\Trade.mqh> for CTrade class
-4. Use OnInit(), OnDeinit(), OnTick() for Expert Advisors
-5. Use SymbolInfoDouble() for prices, not MarketInfo()
-6. Use _Symbol for current symbol, not Symbol()
-7. Use _Digits for digits, not Digits
-8. Use _Point for point size, not Point
-9. Properly declare CTrade object globally: CTrade trade;
-10. Use NormalizeDouble() for price normalization
-11. Handle errors with GetLastError() and proper error codes
-12. All input parameters must use 'input' keyword
-13. Use proper MQL5 data types: double, int, long, string, datetime, bool
-14. Comment all major logic blocks
+CRITICAL MQL5 SYNTAX RULES (MUST FOLLOW):
+1. NEVER use #property strict (MT4 only, will cause errors)
+2. ALWAYS use #property copyright, #property version
+3. ALWAYS include <Trade\\Trade.mqh> for trading
+4. ALWAYS use _Symbol (with underscore), NEVER Symbol
+5. ALWAYS use _Digits (with underscore), NEVER Digits
+6. ALWAYS use _Point (with underscore), NEVER Point
+7. ALWAYS use SymbolInfoDouble(_Symbol, SYMBOL_ASK) for Ask price
+8. ALWAYS use SymbolInfoDouble(_Symbol, SYMBOL_BID) for Bid price
+9. ALWAYS declare CTrade globally: CTrade trade;
+10. ALWAYS use OnInit(), OnDeinit(), OnTick() functions
+11. NEVER use MarketInfo() - use SymbolInfoDouble() instead
+12. NEVER use OrderSend() - use trade.Buy() or trade.Sell() instead
+13. NEVER use OrderSelect() - use PositionSelect() instead
+14. All input parameters MUST use 'input' keyword
+15. ALWAYS use NormalizeDouble() for price calculations
 
 REQUIRED STRUCTURE:
 //+------------------------------------------------------------------+

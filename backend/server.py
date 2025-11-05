@@ -281,7 +281,7 @@ Return ONLY compilable MQL5 code without markdown, explanations, or ```code bloc
         chat = LlmChat(
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
             session_id=f"ea_gen_{user['id']}_{datetime.now(timezone.utc).timestamp()}",
-            system_message="You are an expert MQL5 developer. Generate only valid, compilable MQL5 code without markdown formatting."
+            system_message="You are an expert MQL5 developer. You ONLY write MetaTrader 5 code using correct MT5 syntax. You NEVER use MT4 syntax. Always use _Symbol (with underscore), _Digits (with underscore), and _Point (with underscore). Generate only compilable MQL5 code."
         ).with_model("openai", "gpt-4o")
         
         user_message = UserMessage(text=prompt)

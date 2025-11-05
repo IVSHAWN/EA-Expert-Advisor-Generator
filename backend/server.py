@@ -297,9 +297,6 @@ Return ONLY compilable MQL5 code without markdown, explanations, or ```code bloc
         # Generate license key
         license_key = f"EA-{secrets.token_hex(16).upper()}"
         
-        # Extract name from description
-        name = data.description[:50] if len(data.description) > 50 else data.description
-        
         ea_id = str(uuid.uuid4())
         ea_doc = {
             "id": ea_id,

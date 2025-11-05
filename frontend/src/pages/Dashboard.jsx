@@ -490,6 +490,32 @@ const Dashboard = ({ setIsAuthenticated }) => {
                           required
                         />
                       </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-gray-200">Balance (Optional)</Label>
+                          <Input
+                            data-testid="mt5-balance-input"
+                            type="number"
+                            step="0.01"
+                            placeholder="10000.00"
+                            value={mt5Form.balance}
+                            onChange={(e) => setMt5Form({ ...mt5Form, balance: e.target.value })}
+                            className="bg-white/5 border-white/20 text-white placeholder:text-gray-400"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-gray-200">Equity (Optional)</Label>
+                          <Input
+                            data-testid="mt5-equity-input"
+                            type="number"
+                            step="0.01"
+                            placeholder="10000.00"
+                            value={mt5Form.equity}
+                            onChange={(e) => setMt5Form({ ...mt5Form, equity: e.target.value })}
+                            className="bg-white/5 border-white/20 text-white placeholder:text-gray-400"
+                          />
+                        </div>
+                      </div>
                       <Button
                         data-testid="mt5-connect-btn"
                         type="submit"

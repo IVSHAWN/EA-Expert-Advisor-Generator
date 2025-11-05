@@ -74,6 +74,10 @@ class MT5Account(BaseModel):
     account_number: str
     server: str
     password: str
+    balance: Optional[float] = None
+    equity: Optional[float] = None
+    margin: Optional[float] = None
+    free_margin: Optional[float] = None
 
 class MT5AccountResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -82,7 +86,17 @@ class MT5AccountResponse(BaseModel):
     account_number: str
     server: str
     connected: bool
+    balance: Optional[float] = None
+    equity: Optional[float] = None
+    margin: Optional[float] = None
+    free_margin: Optional[float] = None
     created_at: str
+
+class MT5BalanceUpdate(BaseModel):
+    balance: float
+    equity: Optional[float] = None
+    margin: Optional[float] = None
+    free_margin: Optional[float] = None
 
 class BotStatus(BaseModel):
     model_config = ConfigDict(extra="ignore")

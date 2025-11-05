@@ -359,6 +359,35 @@ const Dashboard = ({ setIsAuthenticated }) => {
                           >
                             <Download className="w-4 h-4 mr-2" /> Download
                           </Button>
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                data-testid={`delete-btn-${ea.id}`}
+                                variant="outline"
+                                className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-500"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-slate-900 border-white/20">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="text-white">Delete EA?</AlertDialogTitle>
+                                <AlertDialogDescription className="text-gray-400">
+                                  Are you sure you want to delete "{ea.name}"? This action cannot be undone and will also delete all associated licenses.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="bg-white/5 text-white border-white/20 hover:bg-white/10">Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteEA(ea.id, ea.name)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
 
                         <div className="text-xs text-gray-500">

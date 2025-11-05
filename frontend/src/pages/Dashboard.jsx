@@ -277,6 +277,18 @@ const Dashboard = ({ setIsAuthenticated }) => {
                     </div>
 
                     <div>
+                      <Label className="text-gray-200">EA Name</Label>
+                      <Input
+                        data-testid="name-input"
+                        placeholder="My Trading Strategy"
+                        value={generateForm.name}
+                        onChange={(e) => setGenerateForm({ ...generateForm, name: e.target.value })}
+                        className="bg-white/5 border-white/20 text-white placeholder:text-gray-400"
+                        required
+                      />
+                    </div>
+
+                    <div>
                       <Label className="text-gray-200">Strategy Description</Label>
                       <Textarea
                         data-testid="description-input"

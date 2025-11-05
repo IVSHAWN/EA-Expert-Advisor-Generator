@@ -321,7 +321,7 @@ Return ONLY compilable MQL5 code without markdown, explanations, or ```code bloc
             id=ea_id,
             user_id=user["id"],
             type=data.type,
-            name=name,
+            name=data.name,
             description=data.description,
             code=code,
             license_key=license_key,

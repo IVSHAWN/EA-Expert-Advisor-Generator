@@ -56,6 +56,7 @@ class TokenResponse(BaseModel):
 
 class GenerateEARequest(BaseModel):
     type: str  # "ea" or "indicator"
+    name: str
     description: str
     strategy_details: Optional[str] = None
 

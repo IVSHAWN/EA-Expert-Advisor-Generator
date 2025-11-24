@@ -332,7 +332,109 @@ void OnTick()
    }}
 }}
 
-NOW generate the complete EA based on the strategy provided. Use ONLY _Symbol, _Digits, _Point (with underscores). Return pure MQL5 code only, no markdown.
+ADDITIONAL CRITICAL RULES TO PREVENT ERRORS:
+
+11. INDICATOR HANDLES:
+    - Declare handles globally: int handleRSI;
+    - Initialize in OnInit: handleRSI = iRSI(_Symbol, PERIOD_CURRENT, 14, PRICE_CLOSE);
+    - Check validity: if(handleRSI == INVALID_HANDLE) return INIT_FAILED;
+    - Get values: double rsi[]; CopyBuffer(handleRSI, 0, 0, 1, rsi);
+    - NEVER use: iRSI() directly in OnTick()
+
+12. ARRAY HANDLING:
+    - Declare arrays: double myArray[];
+    - Set as series: ArraySetAsSeries(myArray, true);
+    - Copy data: CopyBuffer() or CopyClose()
+    - Check size: if(ArraySize(myArray) < 1) return;
+
+13. COMMENTS:
+    - Use // for single line
+    - Use /* */ for multi-line
+    - Add space after //: // Comment (not //Comment)
+
+14. SEMICOLONS:
+    - ALWAYS end statements with semicolon ;
+    - if, for, while blocks don't need semicolon after closing brace
+    - Function declarations don't need semicolon
+
+15. VARIABLE SCOPE:
+    - Global variables: Outside functions
+    - Local variables: Inside functions
+    - NEVER redeclare same variable
+
+COMPLETE WORKING EXAMPLE:
+
+//+------------------------------------------------------------------+
+//|                                                 {ea_name}.mq5    |
+//|                        Copyright 2025, Expert Developer          |
+//+------------------------------------------------------------------+
+#property copyright "2025"
+#property version   "1.00"
+
+#include <Trade\\Trade.mqh>
+
+//--- Input parameters
+input double InpLotSize = 0.1;
+input int InpStopLoss = 100;
+input int InpTakeProfit = 200;
+
+//--- Global variables
+CTrade trade;
+int handleIndicator;
+
+//+------------------------------------------------------------------+
+int OnInit()
+{{
+   // Initialize indicator handle if needed
+   // handleIndicator = iMA(_Symbol, PERIOD_CURRENT, 20, 0, MODE_SMA, PRICE_CLOSE);
+   // if(handleIndicator == INVALID_HANDLE)
+   // {{
+   //    Print("Failed to create indicator handle");
+   //    return(INIT_FAILED);
+   // }}
+   
+   Print("EA initialized successfully");
+   return(INIT_SUCCEEDED);
+}}
+
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{{
+   // Release indicator handles
+   // if(handleIndicator != INVALID_HANDLE)
+   //    IndicatorRelease(handleIndicator);
+}}
+
+//+------------------------------------------------------------------+
+void OnTick()
+{{
+   // Get current prices
+   double ask = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_ASK), _Digits);
+   double bid = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_BID), _Digits);
+   
+   // Check if position exists
+   if(!PositionSelect(_Symbol))
+   {{
+      // No position - check entry conditions
+      
+      // Example: Simple price-based entry
+      double sl = NormalizeDouble(ask - InpStopLoss * _Point, _Digits);
+      double tp = NormalizeDouble(ask + InpTakeProfit * _Point, _Digits);
+      
+      // Place buy order
+      bool result = trade.Buy(InpLotSize, _Symbol, ask, sl, tp, "EA Buy");
+      if(result)
+      {{
+         Print("Buy order placed at ", ask);
+      }}
+      else
+      {{
+         Print("Buy order failed. Error: ", GetLastError());
+      }}
+   }}
+}}
+
+NOW: Generate the complete EA implementing the described strategy. Follow ALL rules exactly. Use proper indicator initialization if needed. Return ONLY compilable MQL5 code without markdown or explanations.
 """
         
         # Use GPT-4o to generate code (stable and fast)

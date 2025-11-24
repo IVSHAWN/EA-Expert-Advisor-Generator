@@ -217,7 +217,7 @@ async def generate_ea(data: GenerateEARequest, user: dict = Depends(get_current_
         # Create prompt for EA generation
         ea_name = data.name.replace(" ", "_")
         prompt = f"""
-Generate a MetaTrader 5 Expert Advisor that compiles with ZERO errors and ZERO warnings in MetaEditor.
+You are a MetaTrader 5 MQL5 compiler. Generate ONLY code that compiles with ZERO errors and ZERO warnings.
 
 EA Name: {data.name}
 Strategy: {data.description}

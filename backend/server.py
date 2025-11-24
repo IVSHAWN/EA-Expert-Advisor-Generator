@@ -215,66 +215,124 @@ async def generate_ea(data: GenerateEARequest, user: dict = Depends(get_current_
         from emergentintegrations.llm.chat import LlmChat, UserMessage
         
         # Create prompt for EA generation
+        ea_name = data.name.replace(" ", "_")
         prompt = f"""
-You are an expert MQL5 developer for MetaTrader 5. Generate a complete, error-free {data.type.upper()} that will compile successfully in MetaEditor Build 3770+.
+Generate a MetaTrader 5 Expert Advisor that compiles with ZERO errors and ZERO warnings in MetaEditor.
 
-Requirements:
-Description: {data.description}
-{f'Strategy Details: {data.strategy_details}' if data.strategy_details else ''}
+EA Name: {data.name}
+Strategy: {data.description}
+{f'Details: {data.strategy_details}' if data.strategy_details else ''}
 
-CRITICAL MQL5 SYNTAX RULES (MUST FOLLOW):
-1. NEVER use #property strict (MT4 only, will cause errors)
-2. ALWAYS use #property copyright, #property version
-3. ALWAYS include <Trade\\Trade.mqh> for trading
-4. ALWAYS use _Symbol (with underscore), NEVER Symbol
-5. ALWAYS use _Digits (with underscore), NEVER Digits
-6. ALWAYS use _Point (with underscore), NEVER Point
-7. ALWAYS use SymbolInfoDouble(_Symbol, SYMBOL_ASK) for Ask price
-8. ALWAYS use SymbolInfoDouble(_Symbol, SYMBOL_BID) for Bid price
-9. ALWAYS declare CTrade globally: CTrade trade;
-10. ALWAYS use OnInit(), OnDeinit(), OnTick() functions
-11. NEVER use MarketInfo() - use SymbolInfoDouble() instead
-12. NEVER use OrderSend() - use trade.Buy() or trade.Sell() instead
-13. NEVER use OrderSelect() - use PositionSelect() instead
-14. All input parameters MUST use 'input' keyword
-15. ALWAYS use NormalizeDouble() for price calculations
+CRITICAL RULES FOR ZERO ERRORS:
 
-REQUIRED STRUCTURE (EXACT FORMAT):
+1. SYMBOL ACCESS:
+   - ALWAYS use: _Symbol (with underscore)
+   - NEVER use: Symbol (without underscore)
+   - Example: PositionSelect(_Symbol)
+
+2. PRICE PRECISION:
+   - ALWAYS use: _Digits (with underscore)
+   - NEVER use: Digits (without underscore)
+   - Example: NormalizeDouble(price, _Digits)
+
+3. POINT SIZE:
+   - ALWAYS use: _Point (with underscore)
+   - NEVER use: Point (without underscore)
+   - Example: stopLoss = price - 50 * _Point
+
+4. GET PRICES:
+   - Ask: SymbolInfoDouble(_Symbol, SYMBOL_ASK)
+   - Bid: SymbolInfoDouble(_Symbol, SYMBOL_BID)
+   - NEVER use: Ask, Bid, MarketInfo()
+
+5. TRADING OPERATIONS:
+   - ALWAYS use CTrade class
+   - NEVER use OrderSend(), OrderClose(), OrderModify()
+   - Example: trade.Buy(lots, _Symbol, ask, sl, tp)
+
+6. POSITION CHECKS:
+   - Use: PositionSelect(_Symbol)
+   - NEVER use: OrderSelect(), OrdersTotal()
+
+7. PROPERTIES:
+   - NEVER use: #property strict (MT4 only)
+   - ALWAYS use: #property copyright, #property version
+
+8. INCLUDES:
+   - ALWAYS include: #include <Trade\\Trade.mqh>
+
+9. VARIABLE DECLARATIONS:
+   - Declare CTrade globally: CTrade trade;
+   - Use proper types: double, int, long, bool, string
+
+10. FUNCTIONS:
+    - Required: int OnInit(), void OnDeinit(const int reason), void OnTick()
+    - Return: INIT_SUCCEEDED in OnInit()
+
+EXACT TEMPLATE TO FOLLOW:
+
 //+------------------------------------------------------------------+
-//|                                                    EA_Name.mq5   |
-//|                        Copyright 2025, Your Name                 |
+//|                                                 {ea_name}.mq5    |
+//|                        Copyright 2025, Expert Coder              |
 //+------------------------------------------------------------------+
 #property copyright "2025"
 #property version   "1.00"
 
 #include <Trade\\Trade.mqh>
 
-input double LotSize = 0.1;
-input int StopLoss = 50;
-input int TakeProfit = 100;
+//--- Input parameters
+input double InpLotSize = 0.1;        // Lot size
+input int    InpStopLoss = 50;        // Stop Loss (points)
+input int    InpTakeProfit = 100;     // Take Profit (points)
 
+//--- Global variables
 CTrade trade;
 
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
 int OnInit()
 {{
    return(INIT_SUCCEEDED);
 }}
 
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {{
+   // Cleanup code here
 }}
 
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
 void OnTick()
 {{
-   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);  // Use _Symbol NOT Symbol
-   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);  // Use _Symbol NOT Symbol
+   // Get current prices using _Symbol (with underscore)
+   double ask = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_ASK), _Digits);
+   double bid = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_BID), _Digits);
    
-   // Your trading logic here using _Symbol, _Digits, _Point
+   // Check if no position open using _Symbol (with underscore)
+   if(!PositionSelect(_Symbol))
+   {{
+      // Calculate stop loss and take profit using _Point (with underscore)
+      double sl = ask - InpStopLoss * _Point;
+      double tp = ask + InpTakeProfit * _Point;
+      
+      // Normalize prices using _Digits (with underscore)
+      sl = NormalizeDouble(sl, _Digits);
+      tp = NormalizeDouble(tp, _Digits);
+      
+      // Place order using CTrade
+      if(trade.Buy(InpLotSize, _Symbol, ask, sl, tp, "Your strategy"))
+      {{
+         Print("Buy order placed successfully");
+      }}
+   }}
 }}
 
-CRITICAL: Use _Symbol, _Digits, _Point (with underscores) everywhere. NEVER use Symbol, Digits, Point without underscores.
-
-Return ONLY compilable MQL5 code without markdown, explanations, or ```code blocks```. Start directly with //.
+NOW generate the complete EA based on the strategy provided. Use ONLY _Symbol, _Digits, _Point (with underscores). Return pure MQL5 code only, no markdown.
 """
         
         # Use GPT-4o to generate code (stable and fast)

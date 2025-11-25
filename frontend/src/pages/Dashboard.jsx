@@ -413,6 +413,14 @@ const Dashboard = ({ setIsAuthenticated }) => {
                           </Dialog>
 
                           <Button
+                            data-testid={`copy-btn-${ea.id}`}
+                            onClick={() => copyCode(ea)}
+                            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700"
+                          >
+                            <Copy className="w-4 h-4 mr-2" /> Copy Code
+                          </Button>
+
+                          <Button
                             data-testid={`download-btn-${ea.id}`}
                             onClick={() => downloadCode(ea)}
                             className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"

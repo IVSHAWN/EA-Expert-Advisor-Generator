@@ -535,7 +535,7 @@ Now generate the EA by copying the template and adding simple strategy logic in 
         chat = LlmChat(
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
             session_id=f"ea_gen_{user['id']}_{datetime.now(timezone.utc).timestamp()}",
-            system_message="You are an expert MQL5 developer. You ONLY write MetaTrader 5 code using correct MT5 syntax. You NEVER use MT4 syntax. Always use _Symbol (with underscore), _Digits (with underscore), and _Point (with underscore). Generate only compilable MQL5 code."
+            system_message="You are a strict MQL5 code generator. You MUST copy the provided template EXACTLY without any structural changes. You ONLY modify the OnTick() function logic. You use ONLY MT5 syntax with _Symbol, _Digits, _Point. You NEVER use MT4 syntax. Generate ONLY code that compiles with zero errors."
         ).with_model("openai", "gpt-4o")
         
         user_message = UserMessage(text=prompt)

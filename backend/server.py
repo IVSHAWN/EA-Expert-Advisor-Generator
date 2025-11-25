@@ -99,6 +99,23 @@ class MT5BalanceUpdate(BaseModel):
     margin: Optional[float] = None
     free_margin: Optional[float] = None
 
+class EmailLog(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    to_email: str
+    subject: str
+    body: str
+    email_type: str
+    sent_at: str
+    status: str
+    error_message: Optional[str] = None
+
+class SupportMessage(BaseModel):
+    name: str
+    email: EmailStr
+    subject: str
+    message: str
+
 class BotStatus(BaseModel):
     model_config = ConfigDict(extra="ignore")
     ea_id: str

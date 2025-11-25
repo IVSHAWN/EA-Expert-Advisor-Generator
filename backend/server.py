@@ -377,7 +377,26 @@ ADDITIONAL CRITICAL RULES TO PREVENT ERRORS:
     - Local variables: Inside functions
     - NEVER redeclare same variable
 
-ULTRA-SIMPLE WORKING TEMPLATE (ALWAYS COMPILES):
+CRITICAL EXAMPLES TO PREVENT ERRORS:
+
+WRONG (MT4 - CAUSES ERRORS):
+   if(Close[1] > Close[2])  // ERROR: Close not defined
+   PositionSelect(Symbol)    // ERROR: Symbol undeclared
+   double tp;                // ERROR: used before initialization
+   if(tp > 100)             // WARNING: uninitialized variable
+
+CORRECT (MT5 - COMPILES):
+   double close[];
+   ArraySetAsSeries(close, true);
+   CopyClose(_Symbol, PERIOD_CURRENT, 0, 10, close);
+   if(close[1] > close[2])  // CORRECT
+   
+   PositionSelect(_Symbol)   // CORRECT with underscore
+   
+   double tp = 0.0;         // CORRECT: initialized
+   if(tp > 100)             // CORRECT
+
+ULTRA-SIMPLE WORKING TEMPLATE (COPY THIS EXACTLY):
 
 //+------------------------------------------------------------------+
 //|                                          {ea_name}.mq5           |

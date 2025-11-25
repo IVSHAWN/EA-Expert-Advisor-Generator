@@ -225,30 +225,35 @@ Strategy: {data.description}
 
 MANDATORY RULES (MUST FOLLOW EXACTLY):
 
-1. SYMBOL ACCESS:
-   - ALWAYS use: _Symbol (with underscore)
-   - NEVER use: Symbol (without underscore)
-   - Example: PositionSelect(_Symbol)
+1. SYMBOL ACCESS (CRITICAL):
+   - ALWAYS: _Symbol (with underscore)
+   - NEVER: Symbol (causes "undeclared identifier" error)
+   - Check EVERY occurrence
 
-2. PRICE PRECISION:
-   - ALWAYS use: _Digits (with underscore)
-   - NEVER use: Digits (without underscore)
-   - Example: NormalizeDouble(price, _Digits)
+2. DIGITS:
+   - ALWAYS: _Digits (with underscore)
+   - NEVER: Digits
 
-3. POINT SIZE:
-   - ALWAYS use: _Point (with underscore)
-   - NEVER use: Point (without underscore)
-   - Example: stopLoss = price - 50 * _Point
+3. POINT:
+   - ALWAYS: _Point (with underscore)
+   - NEVER: Point
 
-4. GET PRICES:
+4. PRICE DATA (CRITICAL - COMMON ERROR):
+   - NEVER use: Close[1], Open[1], High[1], Low[1] (MT4 syntax)
+   - ALWAYS use arrays:
+     double close[];
+     ArraySetAsSeries(close, true);
+     CopyClose(_Symbol, PERIOD_CURRENT, 0, 10, close);
+     double lastClose = close[1];
+
+5. GET CURRENT PRICES:
    - Ask: SymbolInfoDouble(_Symbol, SYMBOL_ASK)
    - Bid: SymbolInfoDouble(_Symbol, SYMBOL_BID)
-   - NEVER use: Ask, Bid, MarketInfo()
+   - NEVER: Ask, Bid variables
 
-5. TRADING OPERATIONS:
-   - ALWAYS use CTrade class
-   - NEVER use OrderSend(), OrderClose(), OrderModify()
-   - Example: trade.Buy(lots, _Symbol, ask, sl, tp)
+6. TRADING:
+   - ALWAYS: trade.Buy() / trade.Sell()
+   - NEVER: OrderSend()
 
 6. POSITION CHECKS:
    - Use: PositionSelect(_Symbol)

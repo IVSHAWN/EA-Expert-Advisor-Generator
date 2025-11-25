@@ -475,6 +475,11 @@ const Dashboard = ({ setIsAuthenticated }) => {
               <LicenseManager />
             </TabsContent>
 
+            {/* Email Dashboard Tab */}
+            <TabsContent value="emails">
+              <EmailDashboard />
+            </TabsContent>
+
             {/* MT5 Accounts Tab */}
             <TabsContent value="mt5">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

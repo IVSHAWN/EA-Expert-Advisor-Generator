@@ -255,24 +255,30 @@ MANDATORY RULES (MUST FOLLOW EXACTLY):
    - ALWAYS: trade.Buy() / trade.Sell()
    - NEVER: OrderSend()
 
-6. POSITION CHECKS:
+7. POSITION CHECKS:
    - Use: PositionSelect(_Symbol)
-   - NEVER use: OrderSelect(), OrdersTotal()
+   - NEVER: OrderSelect(), OrdersTotal()
 
-7. PROPERTIES:
-   - NEVER use: #property strict (MT4 only)
-   - ALWAYS use: #property copyright, #property version
+8. VARIABLE INITIALIZATION (CRITICAL):
+   - ALWAYS initialize variables before use
+   - Example: double currentTP = 0.0;
+   - NEVER use uninitialized variables
 
-8. INCLUDES:
-   - ALWAYS include: #include <Trade\\Trade.mqh>
+9. PROPERTIES:
+   - NEVER: #property strict
+   - ALWAYS: #property copyright, #property version
 
-9. VARIABLE DECLARATIONS:
-   - Declare CTrade globally: CTrade trade;
-   - Use proper types: double, int, long, bool, string
+10. INCLUDES:
+    - ALWAYS: #include <Trade\\Trade.mqh>
 
-10. FUNCTIONS:
-    - Required: int OnInit(), void OnDeinit(const int reason), void OnTick()
-    - Return: INIT_SUCCEEDED in OnInit()
+11. DECLARATIONS:
+    - CTrade globally: CTrade trade;
+    - Proper types: double, int, long, bool, string
+
+12. FUNCTIONS:
+    - int OnInit() - return INIT_SUCCEEDED
+    - void OnDeinit(const int reason)
+    - void OnTick()
 
 EXACT TEMPLATE TO FOLLOW:
 

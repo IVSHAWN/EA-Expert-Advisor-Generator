@@ -345,18 +345,22 @@ void OnTick()
 
 ADDITIONAL CRITICAL RULES TO PREVENT ERRORS:
 
-11. INDICATOR HANDLES:
-    - Declare handles globally: int handleRSI;
-    - Initialize in OnInit: handleRSI = iRSI(_Symbol, PERIOD_CURRENT, 14, PRICE_CLOSE);
-    - Check validity: if(handleRSI == INVALID_HANDLE) return INIT_FAILED;
-    - Get values: double rsi[]; CopyBuffer(handleRSI, 0, 0, 1, rsi);
-    - NEVER use: iRSI() directly in OnTick()
+13. INDICATOR HANDLES:
+    - Declare globally: int handleMA;
+    - Initialize in OnInit: handleMA = iMA(_Symbol, PERIOD_CURRENT, 20, 0, MODE_SMA, PRICE_CLOSE);
+    - Check: if(handleMA == INVALID_HANDLE) return INIT_FAILED;
+    - Use arrays:
+      double maBuffer[];
+      ArraySetAsSeries(maBuffer, true);
+      CopyBuffer(handleMA, 0, 0, 3, maBuffer);
+    - NEVER call iMA() in OnTick()
 
-12. ARRAY HANDLING:
-    - Declare arrays: double myArray[];
-    - Set as series: ArraySetAsSeries(myArray, true);
-    - Copy data: CopyBuffer() or CopyClose()
-    - Check size: if(ArraySize(myArray) < 1) return;
+14. PRICE ARRAYS (AVOID Close[1] ERRORS):
+    - Declare: double closePrice[];
+    - Setup: ArraySetAsSeries(closePrice, true);
+    - Copy: CopyClose(_Symbol, PERIOD_CURRENT, 0, 10, closePrice);
+    - Use: double lastClose = closePrice[1];
+    - NEVER: Close[1], Open[1], High[1], Low[1]
 
 13. COMMENTS:
     - Use // for single line

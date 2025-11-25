@@ -912,6 +912,141 @@ async def get_license_usage(license_key: str, user: dict = Depends(get_current_u
         "recent_usage": logs
     }
 
+# Email Service
+async def send_email(to_email: str, subject: str, body: str, email_type: str):
+    email_id = str(uuid.uuid4())
+    sent_at = datetime.now(timezone.utc).isoformat()
+    
+    # Check if demo mode
+    demo_mode = os.environ.get('EMAIL_DEMO_MODE', 'true').lower() == 'true'
+    
+    email_log = {
+        "id": email_id,
+        "to_email": to_email,
+        "subject": subject,
+        "body": body,
+        "email_type": email_type,
+        "sent_at": sent_at,
+        "status": "pending",
+        "error_message": None
+    }
+    
+    if demo_mode:
+        # Demo mode - just log to database
+        email_log["status"] = "demo_sent"
+        await db.email_logs.insert_one(email_log)
+        logging.info(f"[DEMO MODE] Email logged: {subject} to {to_email}")
+        return True
+    else:
+        # Real mode - send via SendGrid
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail
+            
+            api_key = os.environ.get('SENDGRID_API_KEY')
+            from_email = os.environ.get('EMAIL_FROM', 'noreply@eagenerator.com')
+            
+            if not api_key:
+                email_log["status"] = "failed"
+                email_log["error_message"] = "SendGrid API key not configured"
+                await db.email_logs.insert_one(email_log)
+                return False
+            
+            message = Mail(
+                from_email=from_email,
+                to_emails=to_email,
+                subject=subject,
+                html_content=body
+            )
+            
+            sg = SendGridAPIClient(api_key)
+            response = sg.send(message)
+            
+            if response.status_code in [200, 201, 202]:
+                email_log["status"] = "sent"
+            else:
+                email_log["status"] = "failed"
+                email_log["error_message"] = f"Status code: {response.status_code}"
+            
+            await db.email_logs.insert_one(email_log)
+            return email_log["status"] == "sent"
+            
+        except Exception as e:
+            email_log["status"] = "failed"
+            email_log["error_message"] = str(e)
+            await db.email_logs.insert_one(email_log)
+            logging.error(f"Email send error: {str(e)}")
+            return False
+
+# Email Endpoints
+@api_router.get("/emails/logs", response_model=List[EmailLog])
+async def get_email_logs(user: dict = Depends(get_current_user)):
+    # Get all email logs for user's email
+    logs = await db.email_logs.find({"to_email": user["email"]}, {"_id": 0}).sort("sent_at", -1).limit(100).to_list(100)
+    return logs
+
+@api_router.get("/emails/all", response_model=List[EmailLog])
+async def get_all_emails(user: dict = Depends(get_current_user)):
+    # Get all emails sent from the system (for admin/dashboard view)
+    logs = await db.email_logs.find({}, {"_id": 0}).sort("sent_at", -1).limit(200).to_list(200)
+    return logs
+
+@api_router.post("/emails/resend/{email_id}")
+async def resend_email(email_id: str, user: dict = Depends(get_current_user)):
+    # Get original email
+    email = await db.email_logs.find_one({"id": email_id})
+    if not email:
+        raise HTTPException(status_code=404, detail="Email not found")
+    
+    # Resend
+    success = await send_email(
+        email["to_email"],
+        email["subject"],
+        email["body"],
+        email["email_type"]
+    )
+    
+    if success:
+        return {"message": "Email resent successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to resend email")
+
+@api_router.post("/support/message")
+async def submit_support_message(data: SupportMessage):
+    # Store support message
+    message_id = str(uuid.uuid4())
+    message_doc = {
+        "id": message_id,
+        "name": data.name,
+        "email": data.email,
+        "subject": data.subject,
+        "message": data.message,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "status": "new"
+    }
+    await db.support_messages.insert_one(message_doc)
+    
+    # Send notification email to support
+    support_email = os.environ.get('SUPPORT_EMAIL', 'support@eagenerator.com')
+    subject = f"New Support Message: {data.subject}"
+    body = f"""
+    <h2>New Support Message</h2>
+    <p><strong>From:</strong> {data.name} ({data.email})</p>
+    <p><strong>Subject:</strong> {data.subject}</p>
+    <p><strong>Message:</strong></p>
+    <p>{data.message}</p>
+    """
+    
+    await send_email(support_email, subject, body, "support")
+    
+    return {"message": "Support message submitted successfully", "id": message_id}
+
+@api_router.get("/support/messages")
+async def get_support_messages(user: dict = Depends(get_current_user)):
+    # Get all support messages
+    messages = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return messages
+
 # Include router
 app.include_router(api_router)
 

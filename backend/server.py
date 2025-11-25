@@ -428,7 +428,22 @@ void OnTick()
    }}
 }}
 
-NOW: Generate the complete EA implementing the described strategy. Follow ALL rules exactly. Use proper indicator initialization if needed. Return ONLY compilable MQL5 code without markdown or explanations.
+16. KEEP IT SIMPLE:
+    - Start with basic structure
+    - Add strategy logic step by step
+    - Test each component
+    - Don't overcomplicate
+
+17. COMMON MISTAKES TO AVOID:
+    - Missing semicolons
+    - Wrong variable names
+    - Undefined variables
+    - Wrong function parameters
+    - Missing includes
+
+IMPORTANT: Generate SIMPLE, WORKING code. Don't use complex indicators unless absolutely necessary. Keep the logic straightforward. ALWAYS test for compilation.
+
+NOW generate the complete EA. Follow the template structure EXACTLY. Implement the strategy in the simplest way possible. Return ONLY the MQL5 code without markdown or explanations.
 """
         
         # Use GPT-4o to generate code (stable and fast)

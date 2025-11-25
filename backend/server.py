@@ -625,6 +625,45 @@ Now generate the EA implementing the described strategy with ACTUAL working logi
             "last_updated": datetime.now(timezone.utc).isoformat()
         })
         
+        # Send license key email
+        email_subject = f"Your EA License Key: {data.name}"
+        email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h2 style="color: #8B5CF6;">Your Expert Advisor is Ready!</h2>
+            <p>Hi {user['name']},</p>
+            <p>Your Expert Advisor <strong>{data.name}</strong> has been successfully generated.</p>
+            
+            <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #8B5CF6; margin-top: 0;">Your License Key:</h3>
+                <p style="font-size: 18px; font-weight: bold; color: #1f2937; font-family: monospace;">
+                    {license_key}
+                </p>
+            </div>
+            
+            <p><strong>What's Next?</strong></p>
+            <ol>
+                <li>Download your EA from the dashboard</li>
+                <li>Install it in MetaTrader 5</li>
+                <li>Use your license key to access the monitoring app</li>
+            </ol>
+            
+            <p><strong>EA Details:</strong></p>
+            <ul>
+                <li>Name: {data.name}</li>
+                <li>Type: {data.type.upper()}</li>
+                <li>Description: {data.description}</li>
+            </ul>
+            
+            <p>If you have any questions, please contact our support team.</p>
+            
+            <p>Happy Trading!<br>EA Generator Team</p>
+        </body>
+        </html>
+        """
+        
+        await send_email(user["email"], email_subject, email_body, "license_key")
+        
         return ExpertAdvisor(
             id=ea_id,
             user_id=user["id"],

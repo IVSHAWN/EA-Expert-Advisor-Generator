@@ -475,9 +475,60 @@ void OnTick()
     - Wrong function parameters
     - Missing includes
 
-IMPORTANT: Generate SIMPLE, WORKING code. Don't use complex indicators unless absolutely necessary. Keep the logic straightforward. ALWAYS test for compilation.
+MANDATORY: You MUST copy the template below EXACTLY. Only modify the OnTick() function logic. DO NOT change anything else.
 
-NOW generate the complete EA. Follow the template structure EXACTLY. Implement the strategy in the simplest way possible. Return ONLY the MQL5 code without markdown or explanations.
+EXACT TEMPLATE TO COPY:
+
+//+------------------------------------------------------------------+
+//|                                          {ea_name}.mq5           |
+//+------------------------------------------------------------------+
+#property copyright "2025"
+#property version   "1.00"
+
+#include <Trade\\Trade.mqh>
+
+input double LotSize = 0.1;
+input int StopLossPips = 100;
+input int TakeProfitPips = 200;
+
+CTrade trade;
+
+int OnInit()
+{{
+   return(INIT_SUCCEEDED);
+}}
+
+void OnDeinit(const int reason)
+{{
+}}
+
+void OnTick()
+{{
+   double ask = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_ASK), _Digits);
+   double bid = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_BID), _Digits);
+   
+   if(!PositionSelect(_Symbol))
+   {{
+      double sl = NormalizeDouble(ask - StopLossPips * _Point, _Digits);
+      double tp = NormalizeDouble(ask + TakeProfitPips * _Point, _Digits);
+      
+      // ADD YOUR STRATEGY LOGIC HERE
+      // Example: Simple buy
+      trade.Buy(LotSize, _Symbol, ask, sl, tp, "Buy");
+   }}
+}}
+
+CRITICAL INSTRUCTIONS:
+1. Copy the template EXACTLY as shown above
+2. ONLY modify the comment "ADD YOUR STRATEGY LOGIC HERE" section
+3. Keep ALL other code exactly as is
+4. Use ONLY: _Symbol, _Digits, _Point (with underscores)
+5. Keep it SIMPLE - just buy/sell logic
+6. NO indicators unless absolutely necessary
+7. NO complex arrays unless necessary
+8. Return ONLY the code, no markdown
+
+Now generate the EA by copying the template and adding simple strategy logic in the OnTick() function.
 """
         
         # Use GPT-4o to generate code (stable and fast)

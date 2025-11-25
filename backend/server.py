@@ -540,16 +540,26 @@ void OnTick()
 }}
 
 CRITICAL INSTRUCTIONS:
-1. Copy the template EXACTLY as shown above
-2. ONLY modify the comment "ADD YOUR STRATEGY LOGIC HERE" section
-3. Keep ALL other code exactly as is
-4. Use ONLY: _Symbol, _Digits, _Point (with underscores)
-5. Keep it SIMPLE - just buy/sell logic
-6. NO indicators unless absolutely necessary
-7. NO complex arrays unless necessary
-8. Return ONLY the code, no markdown
+1. Copy the ADVANCED template exactly
+2. Replace "YOUR STRATEGY IMPLEMENTATION GOES HERE" with the actual strategy
+3. For COMPLEX strategies (liquidity sweeps, MSS, FVG, etc), implement proper logic:
+   - Use loops to find swing highs/lows
+   - Compare prices across bars to detect patterns
+   - Use boolean flags to track conditions
+   - Implement step-by-step verification
+4. For SIMPLE strategies, use basic price comparisons
+5. ALWAYS use proper entry conditions before trade.Buy() or trade.Sell()
+6. Print debug messages to help troubleshooting
+7. Return ONLY the code, no markdown
 
-Now generate the EA by copying the template and adding simple strategy logic in the OnTick() function.
+TRADING TERMINOLOGY GUIDE:
+- Liquidity Sweep: Price briefly goes beyond a swing low/high then reverses
+- Market Structure Shift (MSS): Change from lower lows to higher lows (bullish) or higher highs to lower highs (bearish)
+- Fair Value Gap (FVG): Gap between candle wicks (high[2] < low[0])
+- Break of Structure (BOS): Price breaks previous swing point
+- Order Block: Last bullish candle before bearish move (or vice versa)
+
+Now generate the EA implementing the described strategy with ACTUAL working logic.
 """
         
         # Use GPT-4o to generate code (stable and fast)

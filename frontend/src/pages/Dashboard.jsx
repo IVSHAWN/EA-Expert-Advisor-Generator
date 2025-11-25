@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
 import { toast } from "sonner";
-import { LogOut, Plus, Code2, Key, Activity, Download, Power, TrendingUp, Users, Trash2 } from "lucide-react";
+import { LogOut, Plus, Code2, Key, Activity, Download, Power, TrendingUp, Users, Trash2, Copy } from "lucide-react";
 import LicenseManager from "./LicenseManager";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 

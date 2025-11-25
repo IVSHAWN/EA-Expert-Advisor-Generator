@@ -217,13 +217,13 @@ async def generate_ea(data: GenerateEARequest, user: dict = Depends(get_current_
         # Create prompt for EA generation
         ea_name = data.name.replace(" ", "_")
         prompt = f"""
-You are a MetaTrader 5 MQL5 compiler. Generate ONLY code that compiles with ZERO errors and ZERO warnings.
+Generate a MetaTrader 5 Expert Advisor in MQL5 that compiles with ZERO errors.
 
 EA Name: {data.name}
 Strategy: {data.description}
 {f'Details: {data.strategy_details}' if data.strategy_details else ''}
 
-CRITICAL RULES FOR ZERO ERRORS:
+MANDATORY RULES (MUST FOLLOW EXACTLY):
 
 1. SYMBOL ACCESS:
    - ALWAYS use: _Symbol (with underscore)

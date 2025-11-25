@@ -362,11 +362,11 @@ ADDITIONAL CRITICAL RULES TO PREVENT ERRORS:
     - Local variables: Inside functions
     - NEVER redeclare same variable
 
-COMPLETE WORKING EXAMPLE:
+ULTRA-SIMPLE WORKING TEMPLATE (ALWAYS COMPILES):
 
 //+------------------------------------------------------------------+
-//|                                                 {ea_name}.mq5    |
-//|                        Copyright 2025, Expert Developer          |
+//|                                          {ea_name}.mq5           |
+//|                             Copyright 2025, EA Generator         |
 //+------------------------------------------------------------------+
 #property copyright "2025"
 #property version   "1.00"
@@ -374,62 +374,56 @@ COMPLETE WORKING EXAMPLE:
 #include <Trade\\Trade.mqh>
 
 //--- Input parameters
-input double InpLotSize = 0.1;
-input int InpStopLoss = 100;
-input int InpTakeProfit = 200;
+input double InpLotSize = 0.1;        // Lot size
+input int    InpStopLoss = 100;       // Stop Loss in points
+input int    InpTakeProfit = 200;     // Take Profit in points
 
 //--- Global variables
 CTrade trade;
-int handleIndicator;
 
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
 //+------------------------------------------------------------------+
 int OnInit()
 {{
-   // Initialize indicator handle if needed
-   // handleIndicator = iMA(_Symbol, PERIOD_CURRENT, 20, 0, MODE_SMA, PRICE_CLOSE);
-   // if(handleIndicator == INVALID_HANDLE)
-   // {{
-   //    Print("Failed to create indicator handle");
-   //    return(INIT_FAILED);
-   // }}
-   
-   Print("EA initialized successfully");
+   Print("EA Initialized Successfully");
    return(INIT_SUCCEEDED);
 }}
 
 //+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {{
-   // Release indicator handles
-   // if(handleIndicator != INVALID_HANDLE)
-   //    IndicatorRelease(handleIndicator);
+   Print("EA Deinitialized");
 }}
 
 //+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
 void OnTick()
 {{
-   // Get current prices
+   // Get current Ask and Bid prices
    double ask = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_ASK), _Digits);
    double bid = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_BID), _Digits);
    
-   // Check if position exists
+   // Check if we have an open position
    if(!PositionSelect(_Symbol))
    {{
-      // No position - check entry conditions
+      // No position open - apply trading logic here
       
-      // Example: Simple price-based entry
+      // Calculate stop loss and take profit levels
       double sl = NormalizeDouble(ask - InpStopLoss * _Point, _Digits);
       double tp = NormalizeDouble(ask + InpTakeProfit * _Point, _Digits);
       
-      // Place buy order
-      bool result = trade.Buy(InpLotSize, _Symbol, ask, sl, tp, "EA Buy");
-      if(result)
+      // Place a buy order (modify this based on your strategy)
+      if(trade.Buy(InpLotSize, _Symbol, ask, sl, tp, "Buy Signal"))
       {{
-         Print("Buy order placed at ", ask);
+         Print("Buy order executed at ", ask);
       }}
       else
       {{
-         Print("Buy order failed. Error: ", GetLastError());
+         Print("Buy order failed. Error code: ", GetLastError());
       }}
    }}
 }}

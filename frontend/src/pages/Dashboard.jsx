@@ -202,6 +202,14 @@ const Dashboard = ({ setIsAuthenticated }) => {
     document.body.removeChild(element);
   };
 
+  const copyCode = (ea) => {
+    navigator.clipboard.writeText(ea.code).then(() => {
+      toast.success("Code copied to clipboard!");
+    }).catch(() => {
+      toast.error("Failed to copy code");
+    });
+  };
+
   return (
     <div className="min-h-screen relative" data-testid="dashboard-page">
       {/* Smooth Background */}

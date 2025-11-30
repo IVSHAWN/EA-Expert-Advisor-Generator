@@ -492,7 +492,10 @@ void OnTick()
     - Wrong function parameters
     - Missing includes
 
-MANDATORY: You MUST copy the template below EXACTLY. Only modify the OnTick() function logic. DO NOT change anything else.
+YOU MUST RETURN THIS EXACT TEMPLATE WITH ZERO MODIFICATIONS TO STRUCTURE.
+ONLY add simple buy/sell logic in the marked section. NO complex code.
+
+VERIFIED TEMPLATE (COMPILES WITH 0 ERRORS):
 
 ADVANCED TEMPLATE FOR COMPLEX STRATEGIES:
 

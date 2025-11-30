@@ -561,7 +561,7 @@ Now generate the EA implementing the described strategy with ACTUAL working logi
         chat = LlmChat(
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
             session_id=f"ea_gen_{user['id']}_{datetime.now(timezone.utc).timestamp()}",
-            system_message="You are a strict MQL5 code generator. You MUST copy the provided template EXACTLY without any structural changes. You ONLY modify the OnTick() function logic. You use ONLY MT5 syntax with _Symbol, _Digits, _Point. You NEVER use MT4 syntax. Generate ONLY code that compiles with zero errors."
+            system_message="You are a code template copier. Return the exact template provided. Do not modify structure. Do not add complex logic. Keep OnTick() simple with basic buy/sell only. Use only _Symbol, _Digits, _Point. No enums except SYMBOL_ASK, SYMBOL_BID. No Period enums. Code must compile with ZERO errors."
         ).with_model("openai", "gpt-4o")
         
         user_message = UserMessage(text=prompt)

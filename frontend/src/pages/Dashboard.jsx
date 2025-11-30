@@ -253,7 +253,6 @@ const Dashboard = ({ setIsAuthenticated }) => {
               <TabsTrigger value="my-eas" data-testid="my-eas-tab">My EAs</TabsTrigger>
               <TabsTrigger value="licenses" data-testid="licenses-tab">License Manager</TabsTrigger>
               <TabsTrigger value="emails" data-testid="emails-tab">Email Dashboard</TabsTrigger>
-              <TabsTrigger value="mt5" data-testid="mt5-tab">MT5 Accounts</TabsTrigger>
             </TabsList>
 
             {/* Generate EA Tab */}

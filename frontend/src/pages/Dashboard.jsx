@@ -478,9 +478,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
             <TabsContent value="emails">
               <EmailDashboard />
             </TabsContent>
-
-            {/* MT5 Accounts Tab */}
-            <TabsContent value="mt5">
+          </Tabs>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Connect MT5 Form */}
                 <Card className="bg-white/10 backdrop-blur-xl border-white/20">

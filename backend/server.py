@@ -497,8 +497,6 @@ ONLY add simple buy/sell logic in the marked section. NO complex code.
 
 VERIFIED TEMPLATE (COMPILES WITH 0 ERRORS):
 
-ADVANCED TEMPLATE FOR COMPLEX STRATEGIES:
-
 //+------------------------------------------------------------------+
 //|                                          {ea_name}.mq5           |
 //+------------------------------------------------------------------+
@@ -508,15 +506,13 @@ ADVANCED TEMPLATE FOR COMPLEX STRATEGIES:
 #include <Trade\\Trade.mqh>
 
 input double LotSize = 0.1;
-input int StopLossPips = 100;
-input int TakeProfitPips = 200;
-input int LookbackBars = 50;
+input int StopLossPips = 50;
+input int TakeProfitPips = 100;
 
 CTrade trade;
 
 int OnInit()
 {{
-   Print("EA Initialized: ", _Symbol);
    return(INIT_SUCCEEDED);
 }}
 
@@ -526,37 +522,16 @@ void OnDeinit(const int reason)
 
 void OnTick()
 {{
-   // Get price data
-   double high[], low[], close[], open[];
-   ArraySetAsSeries(high, true);
-   ArraySetAsSeries(low, true);
-   ArraySetAsSeries(close, true);
-   ArraySetAsSeries(open, true);
-   
-   if(CopyHigh(_Symbol, PERIOD_CURRENT, 0, LookbackBars, high) <= 0) return;
-   if(CopyLow(_Symbol, PERIOD_CURRENT, 0, LookbackBars, low) <= 0) return;
-   if(CopyClose(_Symbol, PERIOD_CURRENT, 0, LookbackBars, close) <= 0) return;
-   if(CopyOpen(_Symbol, PERIOD_CURRENT, 0, LookbackBars, open) <= 0) return;
-   
    double ask = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_ASK), _Digits);
    double bid = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_BID), _Digits);
    
-   // Check if position already exists
    if(PositionSelect(_Symbol)) return;
    
-   // IMPLEMENT STRATEGY LOGIC HERE
-   // Available arrays: high[], low[], close[], open[]
-   // Index [0] = current bar, [1] = previous bar, etc.
+   // Simple buy logic
+   double sl = NormalizeDouble(ask - StopLossPips * _Point, _Digits);
+   double tp = NormalizeDouble(ask + TakeProfitPips * _Point, _Digits);
    
-   // Example structure for complex strategies:
-   // 1. Find swing highs/lows
-   // 2. Detect liquidity sweeps
-   // 3. Identify market structure shifts
-   // 4. Find fair value gaps
-   // 5. Execute trades based on conditions
-   
-   // YOUR STRATEGY IMPLEMENTATION GOES HERE
-   
+   trade.Buy(LotSize, _Symbol, ask, sl, tp);
 }}
 
 CRITICAL INSTRUCTIONS:

@@ -479,7 +479,13 @@ const Dashboard = ({ setIsAuthenticated }) => {
               <EmailDashboard />
             </TabsContent>
           </Tabs>
-                {/* Connect MT5 Form */}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
                 <Card className="bg-white/10 backdrop-blur-xl border-white/20">
                   <CardHeader>
                     <CardTitle className="text-2xl text-white">Connect MT5 Account</CardTitle>

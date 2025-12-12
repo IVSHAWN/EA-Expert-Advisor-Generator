@@ -77,10 +77,14 @@ const LicenseManager = () => {
       };
 
       await axios.post(`${API}/license/assign?ea_id=${selectedEA}`, payload, getAuthHeader());
-      toast.success("License assigned successfully!");
+      toast.success(`License assigned to ${assignForm.customer_name}!`);
+      
+      // Refresh analytics first
+      await fetchAnalytics(selectedEA);
+      
+      // Then close dialog and reset form
       setAssignForm({ customer_name: "", customer_email: "", expiration_date: "", purchase_amount: "" });
       setAssignDialogOpen(false);
-      fetchAnalytics(selectedEA);
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to assign license");
     } finally {

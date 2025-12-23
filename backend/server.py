@@ -226,6 +226,19 @@ async def login(data: UserLogin):
     if not user or not verify_password(data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
+    # Check if user is approved
+    if user.get("status") == "pending":
+        raise HTTPException(status_code=403, detail="Your account is pending admin approval")
+    
+    if user.get("status") == "suspended":
+        raise HTTPException(status_code=403, detail="Your account has been suspended")
+    
+    # Update last login
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"last_login": datetime.now(timezone.utc).isoformat()}}
+    )
+    
     token = create_access_token({"user_id": user["id"]})
     user_response = User(id=user["id"], email=user["email"], name=user["name"], created_at=user["created_at"])
     return TokenResponse(access_token=token, user=user_response)

@@ -208,13 +208,17 @@ async def register(data: UserRegister):
         "email": data.email,
         "password": hash_password(data.password),
         "name": data.name,
-        "created_at": datetime.now(timezone.utc).isoformat()
+        "role": "user",  # user or admin
+        "status": "pending",  # pending, active, suspended
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "last_login": None,
+        "ea_count": 0,
+        "license_count": 0
     }
     await db.users.insert_one(user_doc)
     
-    token = create_access_token({"user_id": user_id})
-    user = User(id=user_id, email=data.email, name=data.name, created_at=user_doc["created_at"])
-    return TokenResponse(access_token=token, user=user)
+    # Users with pending status can't login until approved
+    return {"message": "Registration successful. Your account is pending approval.", "user_id": user_id}
 
 @api_router.post("/auth/login", response_model=TokenResponse)
 async def login(data: UserLogin):

@@ -1073,6 +1073,107 @@ async def get_support_messages(user: dict = Depends(get_current_user)):
     messages = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return messages
 
+# Admin Endpoints
+async def check_admin(user: dict = Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+@api_router.get("/admin/users")
+async def get_all_users(admin: dict = Depends(check_admin)):
+    users = await db.users.find({}, {"_id": 0, "password": 0}).sort("created_at", -1).to_list(1000)
+    return users
+
+@api_router.put("/admin/users/{user_id}/approve")
+async def approve_user(user_id: str, admin: dict = Depends(check_admin)):
+    result = await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"status": "active"}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User approved successfully"}
+
+@api_router.put("/admin/users/{user_id}/reject")
+async def reject_user(user_id: str, admin: dict = Depends(check_admin)):
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User rejected and removed"}
+
+@api_router.put("/admin/users/{user_id}/suspend")
+async def suspend_user(user_id: str, admin: dict = Depends(check_admin)):
+    result = await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"status": "suspended"}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User suspended successfully"}
+
+@api_router.put("/admin/users/{user_id}/activate")
+async def activate_user(user_id: str, admin: dict = Depends(check_admin)):
+    result = await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"status": "active"}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User activated successfully"}
+
+@api_router.delete("/admin/users/{user_id}")
+async def delete_user(user_id: str, admin: dict = Depends(check_admin)):
+    # Delete user and all their data
+    await db.users.delete_one({"id": user_id})
+    await db.expert_advisors.delete_many({"user_id": user_id})
+    await db.license_assignments.delete_many({"ea_id": {"$in": [ea["id"] for ea in await db.expert_advisors.find({"user_id": user_id}).to_list(1000)]}})
+    await db.mt5_accounts.delete_many({"user_id": user_id})
+    return {"message": "User and all associated data deleted"}
+
+@api_router.get("/admin/analytics")
+async def get_admin_analytics(admin: dict = Depends(check_admin)):
+    total_users = await db.users.count_documents({})
+    pending_users = await db.users.count_documents({"status": "pending"})
+    active_users = await db.users.count_documents({"status": "active"})
+    suspended_users = await db.users.count_documents({"status": "suspended"})
+    
+    total_eas = await db.expert_advisors.count_documents({})
+    total_licenses = await db.license_assignments.count_documents({})
+    
+    # Calculate total revenue
+    licenses = await db.license_assignments.find({}, {"_id": 0}).to_list(10000)
+    total_revenue = sum([l.get("purchase_amount", 0) for l in licenses if l.get("purchase_amount")])
+    
+    return {
+        "total_users": total_users,
+        "pending_users": pending_users,
+        "active_users": active_users,
+        "suspended_users": suspended_users,
+        "total_eas": total_eas,
+        "total_licenses": total_licenses,
+        "total_revenue": total_revenue
+    }
+
+@api_router.get("/admin/user/{user_id}/activity")
+async def get_user_activity(user_id: str, admin: dict = Depends(check_admin)):
+    user = await db.users.find_one({"id": user_id}, {"_id": 0, "password": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    eas = await db.expert_advisors.find({"user_id": user_id}, {"_id": 0}).to_list(1000)
+    
+    # Get licenses for all user's EAs
+    ea_ids = [ea["id"] for ea in eas]
+    licenses = await db.license_assignments.find({"ea_id": {"$in": ea_ids}}, {"_id": 0}).to_list(1000)
+    
+    return {
+        "user": user,
+        "eas": eas,
+        "licenses": licenses,
+        "ea_count": len(eas),
+        "license_count": len(licenses)
+    }
+
 # Include router
 app.include_router(api_router)
 
